@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{98A87DB2-A772-A797-EA86-1C06262E9A05}</ProjectGuid>
+    <ProjectGuid>{B8B39D8C-0788-048E-1746-47CD19FB70E5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Unity.Timeline.Editor</AssemblyName>
@@ -934,24 +934,26 @@
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/2021.1.23f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/netstandard.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Unity.Timeline.csproj">
-      <Project>{6300E64C-1C0E-1803-B54E-EF138D7C48C6}</Project>
+      <Project>{B934DF04-0931-54E7-0C0E-6C6949D7C2B2}</Project>
       <Name>Unity.Timeline</Name>
     </ProjectReference>
+    <ProjectReference Include="UnityEditor.UI.csproj">
+      <Project>{D10B2546-895F-3B84-8EA7-76E77A607092}</Project>
+      <Name>UnityEditor.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="UnityEngine.UI.csproj">
+      <Project>{FE1B2E41-7AF6-34CE-3614-FD25CE014FC3}</Project>
+      <Name>UnityEngine.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{EE5DEFA0-7B41-FFBD-D5BB-6568CFC4A746}</Project>
+      <Project>{DE8B3F0E-4458-8695-C856-AB9463CE0FB6}</Project>
       <Name>UnityEngine.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{4340A038-B1C1-E4AB-BA41-3DDC8C8D3B8C}</Project>
+      <Project>{6E25ACFC-DA9F-8933-5611-C112BCE64C71}</Project>
       <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
   </ItemGroup>

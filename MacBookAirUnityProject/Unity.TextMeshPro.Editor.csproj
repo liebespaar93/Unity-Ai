@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{8BD91929-8E35-CFF6-6334-6455E52D9975}</ProjectGuid>
+    <ProjectGuid>{D4B6E20A-8E42-FA19-E517-F618A902E2B7}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Unity.TextMeshPro.Editor</AssemblyName>
@@ -718,24 +718,26 @@
     <Reference Include="netstandard">
       <HintPath>/Applications/Unity/Hub/Editor/2021.1.23f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/netstandard.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEditor.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>Library/ScriptAssemblies/UnityEngine.UI.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Unity.TextMeshPro.csproj">
-      <Project>{1358D418-6210-2A53-C466-C5EA13CA5CBD}</Project>
+      <Project>{37D5FEB1-984D-1C65-CAEE-9A164666B9CB}</Project>
       <Name>Unity.TextMeshPro</Name>
     </ProjectReference>
+    <ProjectReference Include="UnityEditor.UI.csproj">
+      <Project>{D10B2546-895F-3B84-8EA7-76E77A607092}</Project>
+      <Name>UnityEditor.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="UnityEngine.UI.csproj">
+      <Project>{FE1B2E41-7AF6-34CE-3614-FD25CE014FC3}</Project>
+      <Name>UnityEngine.UI</Name>
+    </ProjectReference>
     <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{EE5DEFA0-7B41-FFBD-D5BB-6568CFC4A746}</Project>
+      <Project>{DE8B3F0E-4458-8695-C856-AB9463CE0FB6}</Project>
       <Name>UnityEngine.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{4340A038-B1C1-E4AB-BA41-3DDC8C8D3B8C}</Project>
+      <Project>{6E25ACFC-DA9F-8933-5611-C112BCE64C71}</Project>
       <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
   </ItemGroup>
