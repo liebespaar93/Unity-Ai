@@ -15,7 +15,7 @@ def work1(sock):
         except socket.error:
             isRunning = False
             return
-        sdata = data.decode()
+        sdata = data[4:].decode()
         print(sdata)
 
 def work2(sock):
@@ -25,7 +25,9 @@ def work2(sock):
         if s == "/quit":
             isRunning = False
             return
-        sock.send(s.encode())
+        data = s.encode()
+        packet = ("%04d"%len(data)).encode() +data
+        sock.send(packet)
         
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -56,6 +56,8 @@
     <Analyzer Include="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.Unity/Analyzers/Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets/Scripts/Spawn.cs" />
+    <Compile Include="Assets/Scripts/SocketDesc.cs" />
     <Compile Include="Assets/Scripts/Avatar.cs" />
     <Compile Include="Assets/Scripts/Main.cs" />
   </ItemGroup>
