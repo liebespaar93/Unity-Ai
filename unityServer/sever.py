@@ -75,11 +75,22 @@ class Server:
 
     # on packet
     def onPacket(self, sock, sdata):
+        self.broadcast(sdata.encode())
         ss = sdata.split()
         # 수정사항 [1:] 한칸 / 를 삭제하여 unity 통신을 위해 수정
         if ss[0] == "join":
             # ss[1] 은 이름
             #이미 접속해있는 다른 유저의 이동 정보를 받아야한다.
+            for k in self.users:
+                u = self.users[k]
+                mesg = f"join {u['name']}"
+                self.send(sock, mesg.encode())
+                mesg = f"avatar {u['name']} {u['avatar']}"
+                self.send(sock, mesg.encode())
+                look = " ".join(map(str, u['look']))
+                mesg = f"look {u['name']} {look}"
+                self.send(sock, mesg.encode())
+            # 이미 접속해 있는 다른 유저의 이동 정보를 받아오기
             for k in self.users:
                 u = self.users[k]
                 mesg = f"move {u['name']} {u['pos']} {u['dir']} {u['speed']}"
@@ -94,6 +105,7 @@ class Server:
             u = self.users[sock]
             mesg = f"move {u['name']} {u['pos']} {u['dir']} {u['speed']}"
             self.broadcast(mesg.encode())
+            
             # 월드 데이터를 보넨다
             for k in self.worldData:
                 wd = self.worldData[k]
@@ -112,6 +124,23 @@ class Server:
             user['direction'] = float(ss[4])
             user['speed'] = float(ss[5])
             user['aspeed'] = float(ss[6])
+        elif ss[0] == "avatar":
+            user['avatar'] = int(ss[2])
+        elif ss[0] == "look":
+            user['look'] = tuple(map(int, ss[2:]))
+        elif ss[0] == "action":
+            if ss[2] not in self.worldData:
+                mesg = f"error {ss[2]} is not world object"
+                self.send(sock, mesg.encode())
+                return
+            obj = self.worldData[ss[2]][3]
+            if obj != None:
+                ret = obj.runCommand(f"join {user['name']}")
+                ret = obj.runCommand(f"put {user['name']} {ss[3]}")
+                self.send(sock, ret.encode())
+
+                
+        '''
         elif ss[0] == "turn":
             user['aspeed'] = int(ss[1])
         elif ss[0] == "world":
@@ -136,11 +165,7 @@ class Server:
                 ret = obj.runCommand(f"put {user['name']} {ss[2]}")
                 print(ret)
             sock.send(sock, ret.encode())
-        elif ss[0] == "avatar":
-            user['avatar'] = int(ss[2])
-        elif ss[0] == "look":
-            user['look'] = tuple(map(int, ss[2:]))
-        self.broadcast(sdata.encode())
+        '''
 
     # on recv
     def onRecv(self, sock):
@@ -211,7 +236,7 @@ class Server:
             wd = self.worldData[k]
             if wd[3] == None: continue
             ret = wd[3].runCommand("board")
-            mesg = f"{k} {ret}"
+            mesg = f"update {k} {ret}"
             print(mesg)
             self.broadcast(mesg.encode())
 

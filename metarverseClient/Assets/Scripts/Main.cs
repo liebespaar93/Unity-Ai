@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 using System.Text;
 
 public class Main: MonoBehaviour
@@ -32,6 +31,10 @@ public class Main: MonoBehaviour
     Dictionary<string, Spawn> spawns;
     Spawn mySpawn;
 
+    /* 월드 데이터 오브젝트들 */
+    Dictionary<string, WorldItem> worldItems;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -41,6 +44,10 @@ public class Main: MonoBehaviour
 
         // spawn들을 관리할 spawns를 생성합니다.
         spawns = new Dictionary<string, Spawn>();
+
+        // world item들을 관리할 worldItems를  생성함.
+        worldItems = new Dictionary<string, WorldItem>();
+
 
 
     }
@@ -139,6 +146,38 @@ public class Main: MonoBehaviour
         zoom += Input.mouseScrollDelta.y * 0.1f;
         if (zoom < -1.0f) zoom = -1.0f; else if (zoom > 1.0f) zoom = 1.0f;
 
+        // 마우스 버튼 0이 클릭된 상태
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.LogFormat("Left Button clicked : {0}", Input.mousePosition);
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            // 1. ray 첫번째는 카메라의 위치 두번제는 가르킨 위치 3차원으로 데이터가 나오며 (1,0,4.2) 신가함
+            Debug.LogFormat("ray data: {0}", ray);
+            // 2. 해당 tay를 이용하여 충돌 검사
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit)) 
+            {
+                // 3. 때린거 이름 보기
+                Debug.LogFormat("Hit : {0}", hit.transform.name);
+
+                Transform ht = hit.transform;
+                WorldItem wi = null;
+                while( ht != null)
+                {
+                    if (ht.gameObject.TryGetComponent<WorldItem>(out wi)) break;
+                    ht = ht.parent;
+
+                }
+                if(wi != null)
+                {
+                    Debug.LogFormat("Hit : {0}", wi.name);
+                    var mesg = string.Format("action {0} {1} {2}", mySpawn.name, wi.name, hit.transform.name);
+                    socketDesc.Send(Encoding.UTF8.GetBytes(mesg));
+
+                }
+            }
+
+        }
         // 마우스 버튼 1이 클릭된 상태에서 팬 처리
         if (Input.GetMouseButtonDown(1)) lastMousePos = Input.mousePosition;
         else if (Input.GetMouseButtonUp(1)) lastMousePos = Vector2.zero;
@@ -196,7 +235,7 @@ public class Main: MonoBehaviour
     }
 
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         // 1. 소켓 디스크립터가 존재하지 않으면 아무것도 안하기
         if (socketDesc == null) return;
@@ -205,6 +244,53 @@ public class Main: MonoBehaviour
         // 3. 패킷가져오기
         var packet = Encoding.UTF8.GetString(socketDesc.GetPacket());
         Debug.Log(packet);
+        var ss = packet.Split();
+        if (ss[0] == "join")
+        {
+            if (!spawns.ContainsKey(ss[1]))
+            {
+                var go = new GameObject();
+                var spawn = go.AddComponent<Spawn>();
+                spawns[ss[1]] = spawn;
+            }
+        }
+        else if (ss[0] == "avatar")
+        {
+            if (spawns.ContainsKey(ss[1]))
+            {
+                var spawn = spawns[ss[1]];
+                if (spawn != mySpawn) spawn.CreateAvatar(ss[1], int.Parse(ss[2]));
+            }
+        }
+        else if (ss[0] == "look")
+        {
+            if (spawns.ContainsKey(ss[1]))
+            {
+                var spawn = spawns[ss[1]];
+                spawn.ChangeLook(int.Parse(ss[2]), int.Parse(ss[3]), int.Parse(ss[4]), int.Parse(ss[5]));
+            }
+        }
+        else if (ss[0] == "worlddata")
+        {
+            //1. 새 게임 오브젝트
+            var go = new GameObject();
+            // 2. 오브젝트 모양 등록
+            var wi = go.AddComponent<WorldItem>();
+            // 3. 실제  오브젝트 생성
+            wi.CreateItem(ss[1], float.Parse(ss[2]), float.Parse(ss[3]), float.Parse(ss[4]));
+            // 4. world 에 아이템 자료구조에 추가
+            worldItems[ss[1]] = wi;
+        }
+        else if(ss[0] == "update")
+        {
+            // 1. 잉름을 가지고 worlditems 항목을 찾아봅니다.
+            if(worldItems.ContainsKey(ss[1]))
+            {
+                // 2. 찾은 아이템에서 updateitem 함수 호출
+                var wi = worldItems[ss[1]];
+                wi.UpdateItem(ss[1], ss[2]);
+            }
+        }
 
     }
 
@@ -222,36 +308,37 @@ public class Main: MonoBehaviour
         // 4. Hide Login window
         loginWindow.SetActive(false);
 
-
-        ////  Avatar 올려놓기
-        ////  1. Resources 폴더에 있는 아바타 모델을 가져오기
-        //var res = Resources.Load("Female/female", typeof(GameObject)) as GameObject;
-        ////  2. Scene에 Instance로 만들기
-        //var go = GameObject.Instantiate(res);
-        ////  3. Instance화된 아바타의 이름을 바꿔보자.
-        //go.name = name.text;
-        ////  4. Animator Controller를 로드하자.
-        //var ac = Resources.Load("Female/female", typeof(RuntimeAnimatorController))
-        //    as RuntimeAnimatorController;
-        ////  5. Avatar로부터 애니메이터 컨트롤러를 가져옵니다.
-        //var animControl = go.GetComponent<Animator>();
-        ////  6. Avatar의 애니메이터 컨트롤러를 위에서 로드한 컨트롤러로 설정
-        //animControl.runtimeAnimatorController = ac;
-        ////  7. Avatar의 애니메이션을 설정합니다.
-        //animControl.SetInteger("animation", 0);
+        /*
+        //  Avatar 올려놓기
+        //  1. Resources 폴더에 있는 아바타 모델을 가져오기
+        var res = Resources.Load("Female/female", typeof(GameObject)) as GameObject;
+        //  2. Scene에 Instance로 만들기
+        var go = GameObject.Instantiate(res);
+        //  3. Instance화된 아바타의 이름을 바꿔보자.
+        go.name = name.text;
+        //  4. Animator Controller를 로드하자.
+        var ac = Resources.Load("Female/female", typeof(RuntimeAnimatorController))
+            as RuntimeAnimatorController;
+        //  5. Avatar로부터 애니메이터 컨트롤러를 가져옵니다.
+        var animControl = go.GetComponent<Animator>();
+        //  6. Avatar의 애니메이터 컨트롤러를 위에서 로드한 컨트롤러로 설정
+        animControl.runtimeAnimatorController = ac;
+        //  7. Avatar의 애니메이션을 설정합니다.
+        animControl.SetInteger("animation", 0);
+        */
 
         //  1. Make a Empty Game object
         var go = new GameObject(name.text);
         //  2. Avatar component 추가하기
         mySpawn = go.AddComponent<Spawn>();
         //  3. Avatar 생성하기
-        var model = UnityEngine.Random.Range(0, 2);
-        mySpawn.CreateAvatar(name.text, UnityEngine.Random.Range(0, 2));
-        var hair = UnityEngine.Random.Range(0, 4);
-        var body = UnityEngine.Random.Range(0, 4);
-        var legs = UnityEngine.Random.Range(0, 4);
-        var shoes = UnityEngine.Random.Range(0, 4);
-        mySpawn.ChangeLook(UnityEngine.Random.Range(0, 4), UnityEngine.Random.Range(0, 4), UnityEngine.Random.Range(0, 4), UnityEngine.Random.Range(0, 4));
+        var model = Random.Range(0, 2);
+        mySpawn.CreateAvatar(name.text, model);
+        var hair = Random.Range(0, 4);
+        var body = Random.Range(0, 4);
+        var legs = Random.Range(0, 4);
+        var shoes = Random.Range(0, 4);
+        mySpawn.ChangeLook(hair, body, legs, shoes);
         /* Spawn 으로 잉동ㅡ
         // 이름판 만들기
         nameGo = new GameObject("Text");
