@@ -87,15 +87,20 @@ while True:
     turn = 1
     while game.isFinished() == -1:
         game.Print(turn)
+        cand = []
+        for i in range(9):
+            if game.board[i] == 0: cand.append(i)
         if turn == game.aiTurn:
-            cand = []
-            for i in range(9):
-                if game.board[i] == 0: cand.append(i)
             p = random.choice(cand)
             game.Put(turn, p)
         else:
-            p = int(input("pos : "))
+            while True:
+                p = int(input("pos : "))
+                if p in cand: break
             game.Put(turn, p)
-        turn ^= 1
+        turn ^= 3
+    game.Print(turn)
+    rtext = ("Draw", "0 WIN", "X WIN")
+    print(rtext[game.isFinished()])
     yn = input("Do you want more game : ")
     if yn != 'y' and yn != 'Y': break
