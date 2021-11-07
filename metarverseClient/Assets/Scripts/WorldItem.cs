@@ -14,6 +14,9 @@ public class WorldItem : MonoBehaviour
         mtlList[1] = Resources.Load("Materials/White") as Material;
         mtlList[2] = Resources.Load("Materials/Black") as Material;
         mtlBoard = Resources.Load("Materials/Board", typeof(Material)) as Material;
+        Debug.Log(mtlBoard);
+        if (mtlBoard == null) Debug.LogError("Loading material is failed.");
+
     }
 
     // Update is called once per frame
