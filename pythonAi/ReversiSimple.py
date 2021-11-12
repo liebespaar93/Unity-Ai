@@ -97,18 +97,21 @@ class Game:
         st = np.array([ref[int(board[i])] for i in range(64)])
 
         # 놓을 수 있는 자리 중 하나를 무작위로 선택합니다.
-        p = random.choice(hints)
-        _, nst = self.preRun(p)
-        return st, nst, p
+        maxp, maxnst, maxv = -1, None, -100
+        for h in hints:
+            _, nst = self.preRun(h)
+            v = self.model.predict(nst.reshape(1,64))[0,0]
+            if v > maxv: maxp, maxnst, maxv = h, nst, v
+        return st, nst, maxp #? maxnst 안쓰는이유?
         
 
     def buildModel(self):
         self.model = keras.Sequential([
-            keras.layers.Dense(1, input_dim=63, activation= 'linear'),
+            keras.layers.Dense(1, input_dim=64, activation= 'linear'),
         ])
         print("grere")
         self.model.compile(loss='mean_squared_error', optimizer= tf.keras.optimizers.Adam())
-        weights = np.ones((63, 1))
+        weights = np.ones((64, 1))
         bias = np.zeros((1,))
         self.model.layers[0].set_weights([weights, bias])
         

@@ -10,7 +10,7 @@ class Game:
     def __init__(self):
         self.gameCount = 0
         self.buildModel()
-
+    
     def connect(self):
         while True:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -97,17 +97,21 @@ class Game:
         st = np.array([ref[int(board[i])] for i in range(64)])
 
         # 놓을 수 있는 자리 중 하나를 무작위로 선택합니다.
-        p = random.choice(hints)
-        _, nst = self.preRun(p)
-        return st, nst, p
-        
+        maxp, maxnst, maxv = -1, None, -100
+        for h in hints:
+            _, nst = self.preRun(h)
+            v = self.model.predict(nst.reshape(1,64))[0,0]
+            if v > maxv: maxp, maxnst, maxv = h, nst, v
+        return st, nst, maxp #? maxnst 안쓰는이유?
 
     def buildModel(self):
         # keras sequential을 만드는데
         # 첫번째 레이어는 64x1 형태이고
         # 활성함수는 linear(선형)으로 생성합니다.
         self.model = keras.Sequential([
-            keras.layers.Dense(1, input_dim=64, activation='linear'),
+            keras.layers.Dense(128, input_dim=64, activation='sigmoid'),
+            keras.layers.Dense(128, activation='sigmoid'),
+            keras.layers.Dense(1, activation='sigmoid'),
             ])
         self.model.compile(loss='mean_squared_error', optimizer=keras.optimizers.Adam())
 
